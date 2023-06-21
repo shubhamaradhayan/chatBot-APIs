@@ -16,6 +16,29 @@ models = openai.Model.list()
 
 import wikipedia
 
+import csv
+
+def binary_search_csv(filename, search_column, search_value):
+    with open(filename, 'r') as file:
+        csv_reader = csv.DictReader(file)
+        sorted_rows = sorted(csv_reader, key=lambda row: row[search_column])
+
+        low = 0
+        high = len(sorted_rows) - 1
+
+        while low <= high:
+            mid = (low + high) // 2
+            mid_row = sorted_rows[mid]
+
+            if mid_row[search_column] == search_value:
+                return mid_row
+            elif mid_row[search_column] < search_value:
+                low = mid + 1
+            else:
+                high = mid - 1
+
+        return None
+
 app = Flask(__name__)
 
 @app.route("/")
@@ -76,6 +99,27 @@ def phoneNumber(mob):
     except:
         data = {'type':'phonenumber', 'Phone': mob,'timezone': 'error', 'carrier':'error', 'location':'error', 'Valid Mobile Number' : 'error','Checking possibility of Number':'error', 'msg':'you should use number with countrycode'}
 
+        return jsonify(data)
+
+
+
+@app.route("/api/spamLink/<path:link>")
+def is_spam(link):
+
+    filename = 'document/url_spam.csv'
+    search_column = 'url'
+    search_value = link
+    try:
+        result = binary_search_csv(filename, search_column, search_value)
+
+        if result:
+            return result
+        #     # print("Element found:", result)
+        else:
+            data = {'is_spam':'No Match Found in Available Record', 'url': link}
+            return jsonify(data)
+    except:
+        data = {'is_spam':'Error Occured', 'url': link}
         return jsonify(data)
 
 
