@@ -106,7 +106,7 @@ def phoneNumber(mob):
 @app.route("/api/spamLink/<path:link>")
 def is_spam(link):
 
-    filename = 'document/url_spam.csv'
+    filename = 'url_spam.csv'
     search_column = 'url'
     search_value = link
     try:
